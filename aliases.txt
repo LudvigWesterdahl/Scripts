@@ -1,0 +1,4 @@
+# Removes all emacs backup and autosaves.
+alias rmc="rm *~ \#*\#"
+
+
