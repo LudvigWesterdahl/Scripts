@@ -9,9 +9,10 @@
 #    source $file
 #done
 
-source rename.bash
-source swap.bash
-source aliases.txt
+source ~/Scripts/rename.bash
+source ~/Scripts/swap.bash
+source ~/Scripts/create_venv.bash
+source ~/Scripts/aliases.txt
 
 
 
