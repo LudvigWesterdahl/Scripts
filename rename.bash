@@ -3,7 +3,7 @@
 function rename() {
     if [ $# -ne 3 ]; then
 	echo "rename <path> <search string> <replace string>"
-	return 0
+	return 1
     fi
 
 
@@ -16,4 +16,5 @@ function rename() {
 	mv "${FILENAME}" "${NEW_FILENAME}";
     done
 
+    return 0
 }
