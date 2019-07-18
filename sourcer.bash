@@ -14,6 +14,7 @@ source ~/Scripts/swap.bash
 source ~/Scripts/create_venv.bash
 source ~/Scripts/aliases.txt
 source ~/Scripts/sync_gitignore.bash
+source ~/Scripts/bas.bash
 
 
 

@@ -20,3 +20,8 @@ Renames all files in a given path that has a string to another string.
 Swaps the content in two files.
 
 **$** swap &lt;file1&gt; &lt;file2&gt;
+
+#### [bas](bas.bash)
+Dumps a sqlite3 table on an android device using the adb.
+
+**$** bas &lt;package&gt; &lt;table&gt; &lt;device&gt; (optional)
