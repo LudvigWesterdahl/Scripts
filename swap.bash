@@ -9,10 +9,11 @@ function swap() {
 
     FIRST=$1
     SECOND=$2
-    TEMP="TEMP"
+    TEMP="#swap-tmp-file#"
     
     mv ${FIRST} ${TEMP}
     mv ${SECOND} ${FIRST}
     mv ${TEMP} ${SECOND}
+    touch ${TEMP}
     return 0
 }

@@ -1,42 +1,124 @@
 #!/bin/bash
 
-# Dumps all rows from table "merchant"
-function basm() {
-    bas com.datategy.octomobile merchant
-}
-
-# Dumps all rows from table "salesman"
-function bass() {
-    bas com.datategy.octomobile salesman
-}
-
-# Dumps all rows from table "voucher"
-function basv() {
-    bas com.datategy.octomobile voucher emulator-5554
+function baso() {
+    bas com.datategy.octomobile "${@}"
 }
 
 function bas() {
-    if [ $# -ne 2 ] && [ $# -ne 3 ]; then
-	echo "######################"
-	echo "Browse Android Sqlite3"
-	echo "######################"
-	echo ""
-	echo "Usage: bas <package> <table> <device (optional)>"
-	echo "<device> is only required if multiple devices exist."
-	echo "Check the possible devices by running: adb devices"
-	echo ""
+    if [ $# -le 1 ] || [ ${1} == "-h" ] || [ ${1} == "--help" ]; then
 
+	echo "Usage: bas <package> [options...]"
+	echo ""
+	echo "<package>     The main android application package"
+	echo ""
+	echo "Options:"
+	echo " -d,          The device, required if multiple emulators/devices are connected"
+	echo " -t,          Specifies the table to perform subsequent actions on"
+	echo " -s,          Prints the schema of the table. Requires -t flag"
+	echo " -c,          Deletes all rows in the table. Requires -t flag"
+	echo " -a,          Prints all tables in the database"
+	echo " -p,          Prints all rows in the table. Requires -t flag"
+	echo " --destroy,   Deletes everything, all files"
 	return 1
     fi
 
     PACKAGE=$1
-    TABLE=$2
-    DEVICE=$3
-    COMMAND="adb shell"
+    HAS_D_FLAG="false"
+    D_FLAG=""
+    HAS_T_FLAG="false"
+    T_FLAG=""
+    HAS_S_FLAG="false"
+    HAS_C_FLAG="false"
+    HAS_A_FLAG="false"
+    HAS_P_FLAG="false"
+    HAS_DESTROY_FLAG="false"
 
-    if [ $# -eq 3 ]; then
-	COMMAND="adb -s ${DEVICE} shell"
+    I="2"
+    while [ $I -le $# ]; do
+	case ${!I} in
+	    "-d")
+		I=$[$I + 1]
+		HAS_D_FLAG="true"
+		D_FLAG=${!I}
+		;;
+	    "-t")
+		I=$[$I + 1]
+		HAS_T_FLAG="true"
+		T_FLAG=${!I}
+		;;
+	    "-s")
+		HAS_S_FLAG="true"
+		;;
+	    "-c")
+		HAS_C_FLAG="true"
+		;;
+	    "-a")
+		HAS_A_FLAG="true"
+		;;
+	    "-p")
+		HAS_P_FLAG="true"
+		;;
+	    "--destroy")
+		HAS_DESTROY_FLAG="true"
+		;;
+	    "*")
+		echo "warning: "${!I}" does not match any supported flags."
+		;;
+	esac
+	I=$[$I + 1]
+    done
+
+    if [ "${HAS_D_FLAG}" == "true" ] && [ "${D_FLAG}" == "" ]; then
+	echo "error: no device was given"
+	return 1
+    fi
+
+    if [ "${HAS_T_FLAG}" == "true" ] && [ "${T_FLAG}" == "" ]; then
+	echo "error: no table was given"
+	return 1
     fi
     
-    ${COMMAND} "sqlite3 /data/data/"${PACKAGE}"/databases/db 'select * from ${TABLE};'"
+    REQUIRES_T_FLAG="false"
+
+    if [ "${HAS_S_FLAG}" == "true" ]; then
+	REQUIRES_T_FLAG="true"
+    elif [ "${HAS_C_FLAG}" == "true" ]; then
+	REQUIRES_T_FLAG="true"
+    elif [ "${HAS_P_FLAG}" == "true" ]; then
+	REQUIRES_T_FLAG="true"
+    fi
+
+    if [ "${REQUIRES_T_FLAG}" == "true" ] && [ "${HAS_T_FLAG}" == "false" ]; then
+	echo "error: -t flag is missing"
+	return 1
+    fi
+
+    COMMAND="adb shell"
+    if [ "${HAS_D_FLAG}" == "true" ]; then
+	COMMAND="adb -s ${D_FLAG} shell"
+    fi
+
+    if [ "${HAS_S_FLAG}" == "true" ]; then
+	${COMMAND} "sqlite3 /data/data/"${PACKAGE}"/databases/db .schema ${TABLE}"
+    fi
+
+    if [ "${HAS_P_FLAG}" == "true" ]; then
+	${COMMAND} "sqlite3 /data/data/"${PACKAGE}"/databases/db 'SELECT * FROM ${T_FLAG};'"
+    fi
+
+    if [ "${HAS_C_FLAG}" == "true" ]; then
+	${COMMAND} "sqlite3 /data/data/"${PACKAGE}"/databases/db 'DELETE FROM ${T_FLAG};'"
+	echo "info: table was cleared"
+    fi
+
+    if [ "${HAS_A_FLAG}" == "true" ]; then
+	${COMMAND} "sqlite3 /data/data/"${PACKAGE}"/databases/db .tables"
+    fi
+
+    if [ "${HAS_DESTROY_FLAG}" == "true" ]; then
+	${COMMAND} "rm -rf /data/data/"${PACKAGE}"/databases"
+	echo "info: database was destroyed"
+    fi
+
+    return 0
 }
