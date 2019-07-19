@@ -1,9 +1,5 @@
 #!/bin/bash
 
-function baso() {
-    bas com.datategy.octomobile "${@}"
-}
-
 function bas() {
     if [ $# -le 1 ] || [ ${1} == "-h" ] || [ ${1} == "--help" ]; then
 
