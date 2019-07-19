@@ -3,9 +3,9 @@
 function bas() {
     if [ $# -le 1 ] || [ ${1} == "-h" ] || [ ${1} == "--help" ]; then
 
-	echo "Usage: bas <package> [options...]"
+	echo "Usage: bas <path> [options...]"
 	echo ""
-	echo "<package>     The main android application package"
+	echo "<package>     The path to the .db file"
 	echo ""
 	echo "Options:"
 	echo " -d,          The device, required if multiple emulators/devices are connected"
@@ -18,7 +18,7 @@ function bas() {
 	return 1
     fi
 
-    PACKAGE=$1
+    PATH=$1
     HAS_D_FLAG="false"
     D_FLAG=""
     HAS_T_FLAG="false"
@@ -95,24 +95,24 @@ function bas() {
     fi
 
     if [ "${HAS_S_FLAG}" == "true" ]; then
-	${COMMAND} "sqlite3 /data/data/"${PACKAGE}"/databases/db .schema ${TABLE}"
+	${COMMAND} "sqlite3 ${PATH} .schema ${TABLE}"
     fi
 
     if [ "${HAS_P_FLAG}" == "true" ]; then
-	${COMMAND} "sqlite3 /data/data/"${PACKAGE}"/databases/db 'SELECT * FROM ${T_FLAG};'"
+	${COMMAND} "sqlite3 ${PATH} 'SELECT * FROM ${T_FLAG};'"
     fi
 
     if [ "${HAS_C_FLAG}" == "true" ]; then
-	${COMMAND} "sqlite3 /data/data/"${PACKAGE}"/databases/db 'DELETE FROM ${T_FLAG};'"
+	${COMMAND} "sqlite3 ${PATH} 'DELETE FROM ${T_FLAG};'"
 	echo "info: table was cleared"
     fi
 
     if [ "${HAS_A_FLAG}" == "true" ]; then
-	${COMMAND} "sqlite3 /data/data/"${PACKAGE}"/databases/db .tables"
+	${COMMAND} "sqlite3 ${PATH} .tables"
     fi
 
     if [ "${HAS_DESTROY_FLAG}" == "true" ]; then
-	${COMMAND} "rm -rf /data/data/"${PACKAGE}"/databases"
+	${COMMAND} "rm -rf ${PATH}"
 	echo "info: database was destroyed"
     fi
 
