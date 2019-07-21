@@ -1,17 +1,19 @@
 #!/bin/bash
 
-function bas() {
+# A version of "bas.bash" using run-as <package>.
+function basr() {
 
-    if [ $# -lt 1 ]; then 
-	echo "bas: try 'bas -h' or 'bas --help' for more information"
+    if [ $# -lt 2 ]; then 
+	echo "basr: try 'basr -h' or 'basr --help' for more information"
 	return 1
     fi
 
     if [ ${1} == "-h" ] || [ ${1} == "--help" ]; then
 
-	echo "Usage: bas <path> [options...]"
+	echo "Usage: basr <package> <path> [options...]"
 	echo ""
 	echo "Arguments:"
+	echo " <package>          The package to start from"
 	echo " <path>             The path to the .db file"
 	echo ""
 	echo "Options:"
@@ -21,12 +23,13 @@ function bas() {
 	echo " -c,                Deletes all rows in the table; requires -t"
 	echo " -a,                Prints all tables in the database"
 	echo " -p,                Prints all rows in the table; requires -t"
-	echo " --destroy,         Deletes everything, all files"
+	echo " --destroy,         Deletes the <path> file."
 
-	return 1
+	return 0
     fi
-
-    declare DB_PATH=$1
+    
+    declare ARG_PACKAGE=$1
+    declare ARG_PATH=$2
 
     declare HAS_D_FLAG="false"
     declare D_FLAG=""
@@ -38,16 +41,16 @@ function bas() {
     declare HAS_P_FLAG="false"
     declare HAS_DESTROY_FLAG="false"
 
-    declare I="2"
+    declare -i I=3
     while [ $I -le $# ]; do
 	case ${!I} in
 	    "-d")
-		I=$[$I + 1]
+		I=I+1
 		HAS_D_FLAG="true"
 		D_FLAG=${!I}
 		;;
 	    "-t")
-		I=$[$I + 1]
+		I=I+1
 		HAS_T_FLAG="true"
 		T_FLAG=${!I}
 		;;
@@ -67,19 +70,19 @@ function bas() {
 		HAS_DESTROY_FLAG="true"
 		;;
 	    *)
-		echo "warning: "${!I}" does not match any supported flags."
+		echo "warning: "${!I}" does not match any supported flags"
 		;;
 	esac
-	I=$[$I + 1]
+	I=I+1
     done
 
     if [ "${HAS_D_FLAG}" == "true" ] && [ "${D_FLAG}" == "" ]; then
-	echo "error: no device was given"
+	echo "error: missing -d argument"
 	return 1
     fi
 
     if [ "${HAS_T_FLAG}" == "true" ] && [ "${T_FLAG}" == "" ]; then
-	echo "error: no table was given"
+	echo "error: missing -t argument"
 	return 1
     fi
     
@@ -94,34 +97,34 @@ function bas() {
     fi
 
     if [ "${REQUIRES_T_FLAG}" == "true" ] && [ "${HAS_T_FLAG}" == "false" ]; then
-	echo "error: -t flag is missing"
+	echo "error: -t option is required for the specified options"
 	return 1
     fi
 
-    declare COMMAND="adb shell"
+    declare COMMAND="adb shell run-as ${ARG_PACKAGE}"
     if [ "${HAS_D_FLAG}" == "true" ]; then
-	COMMAND="adb -s ${D_FLAG} shell"
+	COMMAND="adb -s ${D_FLAG} shell run-as ${ARG_PACKAGE}"
     fi
 
     if [ "${HAS_S_FLAG}" == "true" ]; then
-	${COMMAND} "sqlite3 "${DB_PATH}" .schema ${T_FLAG}"
+	${COMMAND} "sqlite3 ${ARG_PATH} .schema ${T_FLAG}"
     fi
 
     if [ "${HAS_P_FLAG}" == "true" ]; then
-	${COMMAND} "sqlite3 "${DB_PATH}" 'SELECT * FROM ${T_FLAG};'"
+	${COMMAND} "sqlite3 ${ARG_PATH} 'SELECT * FROM ${T_FLAG};'"
     fi
 
     if [ "${HAS_C_FLAG}" == "true" ]; then
-	${COMMAND} "sqlite3 "${DB_PATH}" 'DELETE FROM ${T_FLAG};'"
+	${COMMAND} "sqlite3 ${ARG_PATH} 'DELETE FROM ${T_FLAG};'"
 	echo "info: table was cleared"
     fi
 
     if [ "${HAS_A_FLAG}" == "true" ]; then
-	${COMMAND} "sqlite3 "${DB_PATH}" .tables"
+	${COMMAND} "sqlite3 ${ARG_PATH} .tables"
     fi
 
     if [ "${HAS_DESTROY_FLAG}" == "true" ]; then
-	${COMMAND} "rm -rf "${DB_PATH}
+	${COMMAND} "rm ${ARG_PATH}"
 	echo "info: database was destroyed"
     fi
 
