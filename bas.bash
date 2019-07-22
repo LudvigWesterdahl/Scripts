@@ -2,6 +2,8 @@
 
 function bas() {
 
+    declare -ri NUM_ARGS=1
+
     if [ "${1}" == "-h" ] || [ "${1}" == "--help" ]; then
 
 	echo "Usage: bas <path> [options...]"
@@ -21,9 +23,13 @@ function bas() {
 	return 1
     fi
 
-    if [ $# -lt 1 ]; then 
+    if [ $# -lt $NUM_ARGS ]; then 
 	echo "bas: try 'bas -h' or 'bas --help' for more information"
 	return 1
+    fi
+    if [ $# -le $NUM_ARGS ]; then 
+	echo "bas: no default behaviour without any options"
+	return 0
     fi
 
     declare DB_PATH=$1

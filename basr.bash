@@ -3,6 +3,8 @@
 # A version of "bas.bash" using run-as <package>.
 function basr() {
 
+    declare -ri NUM_ARGS=2
+
     if [ "${1}" == "-h" ] || [ "${1}" == "--help" ]; then
 
 	echo "Usage: basr <package> <path> [options...]"
@@ -23,9 +25,14 @@ function basr() {
 	return 0
     fi
 
-    if [ $# -lt 2 ]; then 
+    if [ $# -lt $NUM_ARGS ]; then 
 	echo "basr: try 'basr -h' or 'basr --help' for more information"
 	return 1
+    fi
+
+    if [ $# -le $NUM_ARGS ]; then 
+	echo "basr: no default behaviour without any options"
+	return 0
     fi
     
     declare ARG_PACKAGE=$1

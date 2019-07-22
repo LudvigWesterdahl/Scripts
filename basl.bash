@@ -3,6 +3,8 @@
 # A version of "bas.bash" running locally as read-only.
 function basl() {
 
+    declare -ri NUM_ARGS=4
+
     if [ "${1}" == "-h" ] || [ "${1}" == "--help" ]; then
 
 	echo "Usage: basl <package> <r_path> <l_path> <file> [options...]"
@@ -23,10 +25,16 @@ function basl() {
 	return 1
     fi
 
-    if [ $# -lt 4 ]; then 
+    if [ $# -lt $NUM_ARGS ]; then 
 	echo "basl: try 'basl -h' or 'basl --help' for more information"
 	return 1
     fi
+
+    if [ $# -le $NUM_ARGS ]; then 
+	echo "basl: no default behaviour without any options"
+	return 0
+    fi
+
 
 
     declare PACKAGE=$1
