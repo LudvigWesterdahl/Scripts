@@ -1,37 +1,47 @@
 #!/bin/bash
 
+readonly PROG_PATH=${0}
+readonly PROG_DIR=${0%/*}
+readonly PROG_NAME=$(basename $0)
+
+print_usage() {
+
+    echo "Usage: ${PROG_NAME} <package> <r_path> <l_path> <file> [options...]"
+    echo ""
+    echo "Arguments:"
+    echo " <package>          The package of the application"
+    echo " <r_path>           The path to the folder with <file> on the device"
+    echo " <l_path>           The path to the folder to store <file> locally"
+    echo " <file>             The name of the db file"
+    echo ""
+    echo "Options:"
+    echo " -d, <device>       Specifies the device/emulator to target"
+    echo " -t, <table>        Specifies the table to perform subsequent actions on"
+    echo " -s,                Prints the schema of the table; requires -t"
+    echo " -a,                Prints all tables in the database"
+    echo " -p,                Prints all rows in the table; requires -t"
+    echo " -u,                Cleans up afterwards, delets any downloaded files"
+
+    return 0
+}
+
 # A version of "bas.bash" running locally as read-only.
-function basl() {
+main() {
 
     declare -ri NUM_ARGS=4
 
     if [ "${1}" == "-h" ] || [ "${1}" == "--help" ]; then
-
-	echo "Usage: basl <package> <r_path> <l_path> <file> [options...]"
-	echo ""
-	echo "Arguments:"
-	echo " <package>          The package of the application"
-	echo " <r_path>           The path to the folder with <file> on the device"
-	echo " <l_path>           The path to the folder to store <file> locally"
-	echo " <file>             The name of the db file"
-	echo ""
-	echo "Options:"
-	echo " -d, <device>       Specifies the device/emulator to target"
-	echo " -t, <table>        Specifies the table to perform subsequent actions on"
-	echo " -s,                Prints the schema of the table; requires -t"
-	echo " -a,                Prints all tables in the database"
-	echo " -p,                Prints all rows in the table; requires -t"
-	echo " -u,                Cleans up afterwards, delets any downloaded files"
+	print_usage
 	return 1
     fi
 
-    if [ $# -lt $NUM_ARGS ]; then 
-	echo "basl: try 'basl -h' or 'basl --help' for more information"
+    if [ $# -lt ${NUM_ARGS} ]; then 
+	echo "${PROG_NAME}: try '${PROG_NAME} -h' or '${PROG_NAME} --help' for more information"
 	return 1
     fi
 
-    if [ $# -le $NUM_ARGS ]; then 
-	echo "basl: no default behaviour without any options"
+    if [ $# -le ${NUM_ARGS} ]; then 
+	echo "${PROG_NAME}: no default behaviour without any options"
 	return 0
     fi
 
@@ -75,19 +85,19 @@ function basl() {
 		HAS_U_FLAG="true"
 		;;
 	    *)
-		echo "warning: "${!I}" does not match any supported flags."
+		echo "${PROG_NAME}: "${!I}" does not match any supported flags."
 		;;
 	esac
 	I=I+1
     done
 
     if [ "${HAS_D_FLAG}" == "true" ] && [ "${D_FLAG}" == "" ]; then
-	echo "error: no device was given"
+	echo "${PROG_NAME}: no device was given"
 	return 1
     fi
 
     if [ "${HAS_T_FLAG}" == "true" ] && [ "${T_FLAG}" == "" ]; then
-	echo "error: no table was given"
+	echo "${PROG_NAME}: no table was given"
 	return 1
     fi
     
@@ -102,7 +112,7 @@ function basl() {
     fi
 
     if [ "${REQUIRES_T_FLAG}" == "true" ] && [ "${HAS_T_FLAG}" == "false" ]; then
-	echo "error: -t flag is missing"
+	echo "${PROG_NAME}: -t flag is missing"
 	return 1
     fi
 
@@ -123,7 +133,7 @@ function basl() {
     ${COMMAND} shell "run-as $PACKAGE cat $R_WAL_FILE 2>/dev/null" > $L_WAL_FILE
 
     if [ "${HAS_S_FLAG}" == "true" ]; then
-	sqlite3 ${L_FILE} .schema ${T_FLAG}
+	sqlite3 ${L_FILE} ".schema ${T_FLAG}"
     fi
 
     if [ "${HAS_P_FLAG}" == "true" ]; then
@@ -131,13 +141,15 @@ function basl() {
     fi
 
     if [ "${HAS_A_FLAG}" == "true" ]; then
-	sqlite3 ${L_FILE} .tables
+	sqlite3 ${L_FILE} ".tables"
     fi
     
     if [ "${HAS_U_FLAG}" == "true" ]; then
 	rm $L_FILE $L_SHM_FILE $L_WAL_FILE 2>/dev/null	
-	echo "info: cleaned up"
+	echo "${PROG_NAME}: removed downloaded files"
     fi
 
     return 0
 }
+
+main "${@}"
