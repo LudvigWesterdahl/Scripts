@@ -2,12 +2,7 @@
 
 function bas() {
 
-    if [ $# -lt 1 ]; then 
-	echo "bas: try 'bas -h' or 'bas --help' for more information"
-	return 1
-    fi
-
-    if [ ${1} == "-h" ] || [ ${1} == "--help" ]; then
+    if [ "${1}" == "-h" ] || [ "${1}" == "--help" ]; then
 
 	echo "Usage: bas <path> [options...]"
 	echo ""
@@ -23,6 +18,11 @@ function bas() {
 	echo " -p,                Prints all rows in the table; requires -t"
 	echo " --destroy,         Deletes everything, all files"
 
+	return 1
+    fi
+
+    if [ $# -lt 1 ]; then 
+	echo "bas: try 'bas -h' or 'bas --help' for more information"
 	return 1
     fi
 

@@ -3,12 +3,7 @@
 # A version of "bas.bash" running locally as read-only.
 function basl() {
 
-    if [ $# -lt 4 ]; then 
-	echo "basl: try 'basl -h' or 'basl --help' for more information"
-	return 1
-    fi
-
-    if [ ${1} == "-h" ] || [ ${1} == "--help" ]; then
+    if [ "${1}" == "-h" ] || [ "${1}" == "--help" ]; then
 
 	echo "Usage: basl <package> <r_path> <l_path> <file> [options...]"
 	echo ""
@@ -27,6 +22,12 @@ function basl() {
 	echo " -u,                Cleans up afterwards, delets any downloaded files"
 	return 1
     fi
+
+    if [ $# -lt 4 ]; then 
+	echo "basl: try 'basl -h' or 'basl --help' for more information"
+	return 1
+    fi
+
 
     declare PACKAGE=$1
     declare DB_R_PATH=$2

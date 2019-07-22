@@ -3,12 +3,7 @@
 # A version of "bas.bash" using run-as <package>.
 function basr() {
 
-    if [ $# -lt 2 ]; then 
-	echo "basr: try 'basr -h' or 'basr --help' for more information"
-	return 1
-    fi
-
-    if [ ${1} == "-h" ] || [ ${1} == "--help" ]; then
+    if [ "${1}" == "-h" ] || [ "${1}" == "--help" ]; then
 
 	echo "Usage: basr <package> <path> [options...]"
 	echo ""
@@ -26,6 +21,11 @@ function basr() {
 	echo " --destroy,         Deletes the <path> file."
 
 	return 0
+    fi
+
+    if [ $# -lt 2 ]; then 
+	echo "basr: try 'basr -h' or 'basr --help' for more information"
+	return 1
     fi
     
     declare ARG_PACKAGE=$1
