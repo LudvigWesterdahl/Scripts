@@ -35,8 +35,6 @@ function basl() {
 	return 0
     fi
 
-
-
     declare PACKAGE=$1
     declare DB_R_PATH=$2
     declare DB_L_PATH=$3
@@ -120,12 +118,12 @@ function basl() {
     declare R_WAL_FILE=$DB_R_PATH$DB_FILE"-wal"
     declare L_WAL_FILE=$DB_L_PATH$DB_FILE"-wal"
     
-    ${COMMAND} shell "run-as $PACKAGE cat "$R_FILE > $L_FILE
-    ${COMMAND} shell "run-as $PACKAGE cat "$R_SHM_FILE > $L_SHM_FILE
-    ${COMMAND} shell "run-as $PACKAGE cat "$R_WAL_FILE > $L_WAL_FILE
+    ${COMMAND} shell "run-as $PACKAGE cat $R_FILE" > $L_FILE
+    ${COMMAND} shell "run-as $PACKAGE cat $R_SHM_FILE 2>/dev/null" > $L_SHM_FILE
+    ${COMMAND} shell "run-as $PACKAGE cat $R_WAL_FILE 2>/dev/null" > $L_WAL_FILE
 
     if [ "${HAS_S_FLAG}" == "true" ]; then
-	sqlite3 ${DB_L_PATH} .schema ${T_FLAG}
+	sqlite3 ${L_FILE} .schema ${T_FLAG}
     fi
 
     if [ "${HAS_P_FLAG}" == "true" ]; then
