@@ -6,22 +6,17 @@ readonly PROG_NAME=$(basename $0)
 
 print_usage() {
 
-    echo "Usage: ${PROG_NAME} <arg1> <arg2> [options...]"
-    echo
-    echo "Arguments:"
-    echo " <arg1>             Description 1"
-    echo " <arg2>             Description 2"
+    echo "Usage: ${PROG_NAME} [options...]"
     echo
     echo "Options:"
-    echo " -a, <a_arg>        Specifies the a arg"
-    echo " -b,                Activates xxx"
+    echo " -m, <message>      Sets the commit message; defaults to 'Synchronized with .gitignore file.'"
 
     return 0
 }
 
 main() {
 
-    declare -ri NUM_ARGS=2
+    declare -ri NUM_ARGS=0
 
     if [ "${1}" == "-h" ] || [ "${1}" == "--help" ]; then
 	print_usage
@@ -32,27 +27,18 @@ main() {
 	echo "${PROG_NAME}: try '${PROG_NAME} -h' or '${PROG_NAME} --help' for more information"
 	return 1
     fi
-
-    if [ $# -le ${NUM_ARGS} ]; then 
-	echo "${PROG_NAME}: no default behaviour without any options"
-	return 0
-    fi
-
-    declare HAS_A_FLAG="false"
-    declare A_FLAG=""
-    declare HAS_B_FLAG="false"
+    
+    declare HAS_M_FLAG="false"
+    declare M_FLAG="Synchronized with .gitignore file."
 
     declare -i I=$NUM_ARGS
     I=I+1
     while [ $I -le $# ]; do
 	case ${!I} in
-	    "-a")
+	    "-m")
 		I=I+1
-		HAS_A_FLAG="true"
-		A_FLAG=${!I}
-		;;
-	    "-b")
-		HAS_B_FLAG="true"
+		HAS_M_FLAG="true"
+		M_FLAG=${!I}
 		;;
 	    *)
 		echo "${PROG_NAME}: "${!I}" does not match any supported flags."
@@ -60,8 +46,10 @@ main() {
 	esac
 	I=I+1
     done
-    
-    # <CODE HERE>
+
+    git rm -r --cached .
+    git add -A
+    git commit -m "${M_FLAG}"
 
     return 0
 }

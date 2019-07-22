@@ -1,0 +1,26 @@
+#!/bin/bash
+
+readonly PROG_PATH=${0}
+readonly PROG_DIR=${0%/*}
+readonly PROG_NAME=$(basename $0)
+
+print_usage() {
+
+    echo "Usage: ${PROG_NAME}"
+
+    return 0
+}
+
+main() {
+
+    if [ "${1}" == "-h" ] || [ "${1}" == "--help" ]; then
+	print_usage
+	return 1
+    fi
+
+    rm *~ \#*\# 2>/dev/null
+
+    return 0
+}
+
+main "${@}"

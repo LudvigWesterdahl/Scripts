@@ -1,0 +1,40 @@
+#!/bin/bash
+
+readonly PROG_PATH=${0}
+readonly PROG_DIR=${0%/*}
+readonly PROG_NAME=$(basename $0)
+
+main() {
+    readonly ARG_COMMAND=$1
+
+    permit() {
+	declare ARG_FILE=$1
+	declare FULL_FILE="${PROG_DIR}/$ARG_FILE"
+	${ARG_COMMAND} ${FULL_FILE}
+	return 0
+    }
+
+    permit "cvenv"
+    permit "ren"
+    permit "rmc"
+    permit "sgi"
+    permit "bas"
+    permit "basr"
+    permit "basl"
+    
+    return 0
+}
+
+main "chmod +x"
+
+if [ "$?" -ne 0 ]; then
+    main "sudo chmod +x"
+fi
+
+if [ "$?" -ne 0 ]; then
+    echo "${PROG_NAME}: failed"
+    exit 1
+fi
+
+echo "${PROG_NAME}: initialized"
+exit 0

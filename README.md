@@ -3,31 +3,35 @@
 #### [TEMPLATE](TEMPLATE)
 Script template.
 
-#### [sourcer.bash](sourcer.bash)
-Sources all scripts in this folder. Assumes the location is: ~/Scripts
+#### [init](init)
+Init script to make all other scripts in this folder executable.
 
-#### [aliases.txt](aliases.txt)
-Contains some handy aliases.
+**$** init
 
-#### [create_venv](create_venv.bash)
-Creates a python virtual environment from a requirements.txt file.
+#### [cvenv](cvenv)
+Creates a python3 virtual environment.
 
-**$** create_venv
+**$** cvenv [options...]
 
-#### [rename](rename.bash)
-Renames all files in a given path that has a string to another string.
+#### [rmc](rmc)
+Removes emacs temporary files.
 
-**$** rename &lt;path&gt; &lt;search string&gt; &lt;replace string&gt;
+**$** rmc
 
-#### [swap](swap.bash)
-Swaps the content in two files.
+#### [sgi](sgi)
+Synchronizes the remote repository with the local .gitignore file.
 
-**$** swap &lt;file1&gt; &lt;file2&gt;
+**$** sgi [options...]
 
 #### [bas](bas)
 Dumps a sqlite3 table on an android device using the adb.
 
 **$** bas &lt;path&gt; [options...]
+
+#### [ren](ren)
+Replaces a substring in all file names in a folder.
+
+**$** ren &lt;old&gt; &lt;new&gt; &lt;path&gt;
 
 #### [basl](basl)
 A version of [bas](bas) but read-only by downloading and using db locally.

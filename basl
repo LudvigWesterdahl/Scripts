@@ -7,13 +7,13 @@ readonly PROG_NAME=$(basename $0)
 print_usage() {
 
     echo "Usage: ${PROG_NAME} <package> <r_path> <l_path> <file> [options...]"
-    echo ""
+    echo
     echo "Arguments:"
     echo " <package>          The package of the application"
     echo " <r_path>           The path to the folder with <file> on the device"
     echo " <l_path>           The path to the folder to store <file> locally"
     echo " <file>             The name of the db file"
-    echo ""
+    echo
     echo "Options:"
     echo " -d, <device>       Specifies the device/emulator to target"
     echo " -t, <table>        Specifies the table to perform subsequent actions on"

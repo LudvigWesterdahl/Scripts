@@ -7,10 +7,10 @@ readonly PROG_NAME=$(basename $0)
 print_usage() {
 
     echo "Usage: ${PROG_NAME} <path> [options...]"
-    echo ""
+    echo
     echo "Arguments:"
     echo " <path>             The path to the .db file"
-    echo ""
+    echo
     echo "Options:"
     echo " -d, <device>       Specifies the device/emulator to target"
     echo " -t, <table>        Specifies the table to perform subsequent actions on"

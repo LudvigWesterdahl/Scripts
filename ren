@@ -1,0 +1,56 @@
+#!/bin/bash
+
+readonly PROG_PATH=${0}
+readonly PROG_DIR=${0%/*}
+readonly PROG_NAME=$(basename $0)
+
+print_usage() {
+
+    echo "Usage: ${PROG_NAME} <old> <new> <path>"
+    echo
+    echo "Arguments:"
+    echo " <old>              Sub string of the file name(s) to replace"
+    echo " <new>              String to replace with"
+    echo " <path>             Folder to search in"
+
+    return 0
+}
+
+main() {
+
+    declare -ri NUM_ARGS=3
+
+    if [ "${1}" == "-h" ] || [ "${1}" == "--help" ]; then
+	print_usage
+	return 1
+    fi
+
+    if [ $# -lt ${NUM_ARGS} ]; then 
+	echo "${PROG_NAME}: try '${PROG_NAME} -h' or '${PROG_NAME} --help' for more information"
+	return 1
+    fi
+
+    declare ARG_OLD=$1
+    declare ARG_NEW=$2
+    declare ARG_PATH=$3
+
+    declare -i I=$NUM_ARGS
+    I=I+1
+    while [ $I -le $# ]; do
+	case ${!I} in
+	    *)
+		echo "${PROG_NAME}: "${!I}" does not match any supported option."
+		;;
+	esac
+	I=I+1
+    done
+
+    find ${ARG_PATH} -type f -name "*${ARG_OLD}*" | while read FILENAME ; do
+	NEW_FILENAME="$(echo ${FILENAME} | sed -e "s/${ARG_OLD}/${ARG_NEW}/g")";
+	mv "${FILENAME}" "${NEW_FILENAME}";
+    done
+
+    return 0
+}
+
+main "${@}"
