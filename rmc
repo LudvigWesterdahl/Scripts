@@ -15,7 +15,7 @@ main() {
 
     if [ "${1}" == "-h" ] || [ "${1}" == "--help" ]; then
 	print_usage
-	return 1
+	return 0
     fi
 
     rm *~ \#*\# 2>/dev/null

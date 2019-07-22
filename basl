@@ -4,6 +4,11 @@ readonly PROG_PATH=${0}
 readonly PROG_DIR=${0%/*}
 readonly PROG_NAME=$(basename $0)
 
+notify() {
+    echo "${PROG_NAME}: $1"
+    return 0
+}
+
 print_usage() {
 
     echo "Usage: ${PROG_NAME} <package> <r_path> <l_path> <file> [options...]"
@@ -32,16 +37,16 @@ main() {
 
     if [ "${1}" == "-h" ] || [ "${1}" == "--help" ]; then
 	print_usage
-	return 1
+	return 0
     fi
 
     if [ $# -lt ${NUM_ARGS} ]; then 
-	echo "${PROG_NAME}: try '${PROG_NAME} -h' or '${PROG_NAME} --help' for more information"
+	notify "try '${PROG_NAME} -h' or '${PROG_NAME} --help' for more information"
 	return 1
     fi
 
     if [ $# -le ${NUM_ARGS} ]; then 
-	echo "${PROG_NAME}: no default behaviour without any options"
+	notify "no default behaviour without any option(s)"
 	return 0
     fi
 
@@ -85,19 +90,19 @@ main() {
 		HAS_U_FLAG="true"
 		;;
 	    *)
-		echo "${PROG_NAME}: "${!I}" does not match any supported flags."
+		notify "${!I} does not match any supported option"
 		;;
 	esac
 	I=I+1
     done
 
     if [ "${HAS_D_FLAG}" == "true" ] && [ "${D_FLAG}" == "" ]; then
-	echo "${PROG_NAME}: no device was given"
+	notify "no device was given"
 	return 1
     fi
 
     if [ "${HAS_T_FLAG}" == "true" ] && [ "${T_FLAG}" == "" ]; then
-	echo "${PROG_NAME}: no table was given"
+	notify "no table was given"
 	return 1
     fi
     
@@ -112,7 +117,7 @@ main() {
     fi
 
     if [ "${REQUIRES_T_FLAG}" == "true" ] && [ "${HAS_T_FLAG}" == "false" ]; then
-	echo "${PROG_NAME}: -t flag is missing"
+	notify "-t flag is missing"
 	return 1
     fi
 
@@ -146,7 +151,7 @@ main() {
     
     if [ "${HAS_U_FLAG}" == "true" ]; then
 	rm $L_FILE $L_SHM_FILE $L_WAL_FILE 2>/dev/null	
-	echo "${PROG_NAME}: removed downloaded files"
+	notify "removed downloaded files"
     fi
 
     return 0

@@ -4,13 +4,18 @@ readonly PROG_PATH=${0}
 readonly PROG_DIR=${0%/*}
 readonly PROG_NAME=$(basename $0)
 
+notify() {
+    echo "${PROG_NAME}: $1"
+    return 0
+}
+
 print_usage() {
 
     echo "Usage: ${PROG_NAME} <package> <path> [options...]"
     echo
     echo "Arguments:"
     echo " <package>          The package to start from"
-    echo " <path>             The path to the .db file"
+    echo " <path>             The db file path"
     echo
     echo "Options:"
     echo " -d, <device>       Specifies the device/emulator to target"
@@ -19,7 +24,7 @@ print_usage() {
     echo " -c,                Deletes all rows in the table; requires -t"
     echo " -a,                Prints all tables in the database"
     echo " -p,                Prints all rows in the table; requires -t"
-    echo " --destroy,         Deletes the <path> file."
+    echo " --destroy,         Deletes the <path> file"
 
     return 0
 }
@@ -34,12 +39,12 @@ main() {
     fi
 
     if [ $# -lt $NUM_ARGS ]; then 
-	echo "${PROG_NAME}: try '${PROG_NAME} -h' or '${PROG_NAME} --help' for more information"
+	notify "try '${PROG_NAME} -h' or '${PROG_NAME} --help' for more information"
 	return 1
     fi
 
     if [ $# -le $NUM_ARGS ]; then 
-	echo "${PROG_NAME}: no default behaviour without any options"
+	notify "no default behaviour without any option(s)"
 	return 0
     fi
     
@@ -86,19 +91,19 @@ main() {
 		HAS_DESTROY_FLAG="true"
 		;;
 	    *)
-		echo "${PROG_NAME}: "${!I}" does not match any supported flags"
+		notify "${!I} does not match any supported option"
 		;;
 	esac
 	I=I+1
     done
 
     if [ "${HAS_D_FLAG}" == "true" ] && [ "${D_FLAG}" == "" ]; then
-	echo "${PROG_NAME}: missing -d argument"
+	notify "missing -d argument"
 	return 1
     fi
 
     if [ "${HAS_T_FLAG}" == "true" ] && [ "${T_FLAG}" == "" ]; then
-	echo "${PROG_NAME}: missing -t argument"
+	notify "missing -t argument"
 	return 1
     fi
     
@@ -113,7 +118,7 @@ main() {
     fi
 
     if [ "${REQUIRES_T_FLAG}" == "true" ] && [ "${HAS_T_FLAG}" == "false" ]; then
-	echo "${PROG_NAME}: -t option is required for the specified option(s)"
+	notify "-t option is required for the specified option(s)"
 	return 1
     fi
 
@@ -132,7 +137,7 @@ main() {
 
     if [ "${HAS_C_FLAG}" == "true" ]; then
 	${COMMAND} "sqlite3 ${ARG_PATH} 'DELETE FROM ${T_FLAG};'"
-	echo "${PROG_NAME}: table was cleared"
+	notify "table was cleared"
     fi
 
     if [ "${HAS_A_FLAG}" == "true" ]; then
@@ -141,7 +146,7 @@ main() {
 
     if [ "${HAS_DESTROY_FLAG}" == "true" ]; then
 	${COMMAND} "rm ${ARG_PATH}"
-	echo "${PROG_NAME}: database was destroyed"
+	notify "database was destroyed"
     fi
 
     return 0

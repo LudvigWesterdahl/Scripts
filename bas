@@ -4,12 +4,17 @@ readonly PROG_PATH=${0}
 readonly PROG_DIR=${0%/*}
 readonly PROG_NAME=$(basename $0)
 
+notify() {
+    echo "${PROG_NAME}: $1"
+    return 0
+}
+
 print_usage() {
 
     echo "Usage: ${PROG_NAME} <path> [options...]"
     echo
     echo "Arguments:"
-    echo " <path>             The path to the .db file"
+    echo " <path>             The db file path"
     echo
     echo "Options:"
     echo " -d, <device>       Specifies the device/emulator to target"
@@ -29,16 +34,16 @@ main() {
 
     if [ "${1}" == "-h" ] || [ "${1}" == "--help" ]; then
 	print_usage
-	return 1
+	return 0
     fi
 
     if [ $# -lt ${NUM_ARGS} ]; then 
-	echo "${PROG_NAME}: try '${PROG_NAME} -h' or '${PROG_NAME} --help' for more information"
+	notify "try '${PROG_NAME} -h' or '${PROG_NAME} --help' for more information"
 	return 1
     fi
 
     if [ $# -le ${NUM_ARGS} ]; then 
-	echo "${PROG_NAME}: no default behaviour without any options"
+	notify "no default behaviour without any options"
 	return 0
     fi
 
@@ -83,19 +88,19 @@ main() {
 		HAS_DESTROY_FLAG="true"
 		;;
 	    *)
-		echo "${PROG_NAME}: "${!I}" does not match any supported flags."
+		notify "${!I} does not match any supported option"
 		;;
 	esac
 	I=$[$I + 1]
     done
 
     if [ "${HAS_D_FLAG}" == "true" ] && [ "${D_FLAG}" == "" ]; then
-	echo "${PROG_NAME}: no device was given"
+	notify "no device was given"
 	return 1
     fi
 
     if [ "${HAS_T_FLAG}" == "true" ] && [ "${T_FLAG}" == "" ]; then
-	echo "${PROG_NAME}: no table was given"
+	notify "no table was given"
 	return 1
     fi
     
@@ -110,7 +115,7 @@ main() {
     fi
 
     if [ "${REQUIRES_T_FLAG}" == "true" ] && [ "${HAS_T_FLAG}" == "false" ]; then
-	echo "${PROG_NAME}: -t flag is missing"
+	notify "-t flag is missing"
 	return 1
     fi
 
@@ -129,7 +134,7 @@ main() {
 
     if [ "${HAS_C_FLAG}" == "true" ]; then
 	${COMMAND} "sqlite3 ${DB_PATH} 'DELETE FROM ${T_FLAG};'"
-	echo "${PROG_NAME}: table was cleared"
+	notify "table was cleared"
     fi
 
     if [ "${HAS_A_FLAG}" == "true" ]; then
@@ -138,7 +143,7 @@ main() {
 
     if [ "${HAS_DESTROY_FLAG}" == "true" ]; then
 	${COMMAND} "rm -rf ${DB_PATH}"
-	echo "${PROG_NAME}: database was destroyed"
+	notify "database was destroyed"
     fi
 
     return 0
