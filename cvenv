@@ -55,9 +55,12 @@ main() {
     if [ ! -d ".venv" ]; then
 	mkdir .venv
 	notify "created .venv folder"
+    else
+	notify ".venv folder already exists"
     fi
-
+    
     python3 -m venv .venv
+    notify "made .venv into virtual environment folder"
 
     if [ $? -ne 0 ]; then
 	notify "python3 is not installed"
@@ -66,8 +69,12 @@ main() {
 
     if [ "${HAS_R_FLAG}" == "true" ]; then
 	source .venv/bin/activate
+	notify "installing requirements..."
 	python3 -m pip install -r "${R_FLAG}"
+	notify "requirements installed!"
 	deactivate
+    else
+	notify "-r flag is missing, no requirements installed"
     fi
 
     return 0
