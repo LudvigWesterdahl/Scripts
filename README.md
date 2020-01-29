@@ -1,4 +1,6 @@
 # Scripts
+Add export PATH="/PATH/TO/Scripts/:${PATH}" to .bash_profile in your
+home directory.
 
 #### [TEMPLATE](TEMPLATE)
 Script template.

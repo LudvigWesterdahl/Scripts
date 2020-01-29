@@ -15,6 +15,7 @@ print_usage() {
     echo
     echo "Options:"
     echo " -r, <file>         Requirements file installed after activation"
+    echo " -d                 Deletes old .venv folder before installing."
 
     return 0
 }
@@ -35,6 +36,7 @@ main() {
 
     declare HAS_R_FLAG="false"
     declare R_FLAG=""
+    declare HAS_D_FLAG="false"
 
     declare -i I=$NUM_ARGS
     I=I+1
@@ -45,6 +47,10 @@ main() {
 		HAS_R_FLAG="true"
 		R_FLAG=${!I}
 		;;
+	    "-d")
+		I=I+1
+		HAS_D_FLAG="true"
+		;;
 	    *)
 		notify "${!I} does not match any supported option"
 		;;
@@ -52,11 +58,19 @@ main() {
 	I=I+1
     done
 
+    
+
     if [ ! -d ".venv" ]; then
 	mkdir .venv
 	notify "created .venv folder"
     else
 	notify ".venv folder already exists"
+	if [ "${HAS_D_FLAG}" == "true" ]; then
+	    rm -rf .venv
+	    notify "deleted .venv folder"
+	    mkdir .venv
+	    notify "created .venv folder"
+	fi    
     fi
     
     python3 -m venv .venv
