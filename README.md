@@ -44,3 +44,8 @@ A version of [bas](bas) but read-only by downloading and using db locally.
 A version of [bas](bas) which works without rooting adb by using "run-as".
 
 **$** basr &lt;package&gt; &lt;path&gt; [options...]
+
+#### [cag](cag)
+Cache git credentials locally in a repository.
+
+**$** cag [options...]

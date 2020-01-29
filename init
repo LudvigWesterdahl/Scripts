@@ -21,6 +21,7 @@ main() {
     permit "bas"
     permit "basr"
     permit "basl"
+    permit "cag"
     
     return 0
 }

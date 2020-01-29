@@ -1,0 +1,72 @@
+#!/bin/bash
+
+readonly PROG_PATH=${0}
+readonly PROG_DIR=${0%/*}
+readonly PROG_NAME=$(basename $0)
+
+notify() {
+    echo "${PROG_NAME}: $1"
+    return 0
+}
+
+print_usage() {
+
+    echo "Usage: ${PROG_NAME} [options...]"
+    echo
+    echo "Options:"
+    echo " -t, --timeout      Number of seconds to cache credentials; default 900"
+
+    return 0
+}
+
+main() {
+
+    declare -ri NUM_ARGS=0
+
+    if [ "${1}" == "-h" ] || [ "${1}" == "--help" ]; then
+	print_usage
+	return 0
+    fi
+
+    if [ $# -lt ${NUM_ARGS} ]; then 
+	notify "try '${PROG_NAME} -h' or '${PROG_NAME} --help' for more information"
+	return 1
+    fi
+
+    declare HAS_T_FLAG="false"
+    declare T_FLAG="900"
+
+    declare -i I=$NUM_ARGS
+    I=I+1
+    while [ $I -le $# ]; do
+	case ${!I} in
+	    "-t")
+		I=I+1
+		HAS_T_FLAG="true"
+		T_FLAG=${!I}
+		;;
+	    "--timeout")
+		I=I+1
+		HAS_T_FLAG="true"
+		T_FLAG=${!I}
+		;;
+	    *)
+		notify "${!I} does not match any supported option"
+		;;
+	esac
+	I=I+1
+    done
+
+    git config --local credential.helper "cache --timeout=${T_FLAG}" 2>/dev/null
+    
+    if [ $? -ne 0 ]; then
+	notify "not inside git a repositoriy"
+	return 1
+    fi
+
+    notify "timeout set to ${T_FLAG} seconds"
+
+    return 0
+}
+
+main "${@}"
