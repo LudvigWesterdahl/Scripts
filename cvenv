@@ -48,7 +48,6 @@ main() {
 		R_FLAG=${!I}
 		;;
 	    "-d")
-		I=I+1
 		HAS_D_FLAG="true"
 		;;
 	    *)
