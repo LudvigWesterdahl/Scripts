@@ -1,6 +1,7 @@
 # Scripts
 Add export PATH=${PATH}:"/PATH/TO/Scripts/" to .bash_profile in your home directory.
-*For example:*
+
+#### For example:
 export PATH=${PATH}:"~/Documents/Scripts/"
 
 #### [TEMPLATE](TEMPLATE)
