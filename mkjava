@@ -1,0 +1,109 @@
+#!/bin/bash
+
+readonly PROG_PATH=${0}
+readonly PROG_DIR=${0%/*}
+readonly PROG_NAME=$(basename $0)
+
+notify() {
+    echo "${PROG_NAME}: $1"
+    return 0
+}
+
+print_usage() {
+
+    echo "Usage: mkjava [options...]"
+    echo
+    echo "Options:"
+    echo " -d, --dir          Name of the folder"
+    echo " -f, --force        Force; deletes old folder if exists"
+
+    return 0
+}
+
+main() {
+
+    declare -ri NUM_ARGS=0
+
+    if [ "${1}" == "-h" ] || [ "${1}" == "--help" ]; then
+	print_usage
+	return 0
+    fi
+
+    if [ $# -lt ${NUM_ARGS} ]; then 
+	notify "try '${PROG_NAME} -h' or '${PROG_NAME} --help' for more information"
+	return 1
+    fi
+
+    declare HAS_D_FLAG="false"
+    declare D_FLAG="mkjava-src"
+    declare HAS_F_FLAG="false"
+
+    declare -i I=$NUM_ARGS
+    I=I+1
+    while [ $I -le $# ]; do
+	case ${!I} in
+	    "-d")
+		I=I+1
+		HAS_D_FLAG="true"
+		D_FLAG=${!I}
+		;;
+	    "--dir")
+		I=I+1
+		HAS_D_FLAG="true"
+		D_FLAG=${!I}
+		;;
+
+	    "-f")
+		HAS_F_FLAG="true"
+		;;
+
+	    "--force")
+		HAS_F_FLAG="true"
+		;;
+	    *)
+		notify "${!I} does not match any supported option"
+		;;
+	esac
+	I=I+1
+    done
+
+    if [ "${HAS_F_FLAG}" == "true" ] && [ -d ${D_FLAG} ]; then
+	rm -rf ${D_FLAG}
+    fi
+
+    if [ -d ${D_FLAG} ]; then
+	notify "folder "${D_FLAG}" already exists"
+	return 1
+    fi
+    
+    # <CODE HERE>
+    declare MK_FILE=${D_FLAG}/Makefile
+    declare JV_FILE=${D_FLAG}/Test.java
+
+    wmk() {
+	echo -e "$1" >> ${MK_FILE}
+    }
+
+    wjv() {
+	echo -e "$1" >> ${JV_FILE}
+    }
+    
+    mkdir ${D_FLAG}
+    touch ${MK_FILE}
+    touch ${JV_FILE}
+    wmk "all:"
+    wmk "\tjavac Test.java"
+    wmk "\tjava Test"
+
+    wjv "public class Test {"
+    wjv ""
+    wjv "    public static void main(String[] args) {"
+    wjv '        System.out.println("Hello from mkjava!");'
+    wjv "    }"
+    wjv "}"
+
+    return 0
+}
+
+main "${@}"
+

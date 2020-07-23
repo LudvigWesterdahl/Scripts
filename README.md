@@ -51,3 +51,8 @@ A version of [bas](bas) which works without rooting adb by using "run-as".
 Cache git credentials locally in a repository.
 
 **$** cag [options...]
+
+#### [mkjava](mkjava)
+Creates a Makefile and a java file to easily test some java code.
+
+**$** mkjava [options...]
