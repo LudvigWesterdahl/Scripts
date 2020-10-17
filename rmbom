@@ -27,12 +27,14 @@ remove_bom() {
     if [ -f "$1" ]; then
 	if in_array "${1##*\.}" "${E_FLAGS[@]}" ; then
 	    notify "removing BOM from $1"
-	    vi -c ":set nobomb" -c ":wq" "$1"
+	    #vi -c ":set nobomb" -c ":wq" "$1"
+	    perl -e 's/\xef\xbb\xbf//;' -pi "$1"
 	fi
 
 	if [ "${HAS_E_FLAG}" == "false" ]; then
 	    notify "removing BOM from $1"
-	    vi -c ":set nobomb" -c ":wq" "$1"
+	    #vi -c ":set nobomb" -c ":wq" "$1"
+	    perl -e 's/\xef\xbb\xbf//;' -pi "$1"	    
 	fi
     fi
     return 0
