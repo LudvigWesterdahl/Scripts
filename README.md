@@ -56,3 +56,13 @@ Cache git credentials locally in a repository.
 Creates a Makefile and a java file to easily test some java code.
 
 **$** mkjava [options...]
+
+#### [runkt](runkt)
+Compiles and runs a .kt file (requires camelcase naming of file).
+
+**$** runkt <file>
+
+#### [rmbom](rmbom)
+Removes the Byte-Order-Mark (BOM) from all files in a given path.
+
+**$** rmbom <path> [options...]
