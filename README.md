@@ -66,3 +66,8 @@ Compiles and runs a .kt file (requires camelcase naming of file).
 Removes the Byte-Order-Mark (BOM) from all files in a given path.
 
 **$** rmbom <path> [options...]
+
+#### [rmdocker](rmdocker)
+Cleans up the docker environment locally.
+
+**$** rmdocker [option]
