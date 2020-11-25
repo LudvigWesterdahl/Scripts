@@ -18,6 +18,8 @@ print_usage() {
     echo
     echo "Options:"
     echo " -p, <path>         The path to search from; defaults to '/'"
+    echo " [-s], <search>     Additional search string"
+    echo " -d, <depth>        Limit the number or directory levels below <path> to search in"
 
     return 0
 }
@@ -40,6 +42,9 @@ main() {
 
     declare HAS_P_FLAG="false"
     declare P_FLAG="/"
+    declare S_FLAGS=( $ARG_NAME )
+    declare HAS_D_FLAG="false"
+    declare -i D_FLAG="0"
 
     declare -i I=$NUM_ARGS
     I=I+1
@@ -50,6 +55,16 @@ main() {
 		HAS_P_FLAG="true"
 		P_FLAG=${!I}
 		;;
+	    "-s")
+		I=I+1
+		S_FLAGS+=( ${!I} )
+		;;
+	    "-d")
+		I=I+1
+		HAS_D_FLAG="true"
+		D_FLAG=${!I}
+		D_FLAG=D_FLAG+1
+		;;
 	    *)
 		notify "${!I} does not match any supported option"
 		;;
@@ -59,10 +74,22 @@ main() {
     
     # Writes the content to the file.
     declare TMP_FILE=".cmactmp"
-    find $P_FLAG -iname "*${ARG_NAME}*" -print0 2>/dev/null | while read -d $'\0' file
-    do
-	echo $file >> $TMP_FILE
+    rm -rf $TMP_FILE 2>/dev/null
+    declare -i S=0
+    while [ $S -lt "${#S_FLAGS[@]}" ]; do
+	declare S_FLAG=${S_FLAGS[$S]}
+	declare MAX_DEPTH=""
+	if [ "${HAS_D_FLAG}" == "true" ]; then
+	    MAX_DEPTH="-maxdepth $D_FLAG"
+	fi
+
+	find $P_FLAG -iname "*${S_FLAG}*" -print0 2>/dev/null $MAX_DEPTH | while read -d $'\0' file
+	do
+	    echo $file >> $TMP_FILE
+	done
+	S=S+1
     done
+    
     
     # Prints all the files to the user.
     declare FILES=()
@@ -111,7 +138,7 @@ main() {
 	I=I+1
     done
     
-    rm -rf $TMP_FILE
+    rm -rf $TMP_FILE 2>/dev/null
 
     return 0
 }
