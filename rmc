@@ -45,10 +45,9 @@ main() {
     done
 
     if [ "${HAS_R_FLAG}" == "true" ]; then
-	cmac "~" -p .
-	cmac "\#*\#" -p .
+	cmac "~" -p "." -s "\#*\#"
     else
-	rm *~ \#*\# 2>/dev/null
+	cmac "~" -s "\#*\#" -p "." -d 0
     fi
 
     return 0

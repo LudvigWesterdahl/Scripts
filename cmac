@@ -17,9 +17,11 @@ print_usage() {
     echo " <search>           The search string"
     echo
     echo "Options:"
-    echo " -p, <path>         The path to search from; defaults to '/'"
+    echo " -p, <path>         The path to search from; defaults to current directory"
     echo " [-s], <search>     Additional search string"
     echo " -d, <depth>        Limit the number or directory levels below <path> to search in"
+    echo " -f,                Force, does not prompt before deletions"
+    
 
     return 0
 }
@@ -41,10 +43,11 @@ main() {
     declare ARG_NAME=$1
 
     declare HAS_P_FLAG="false"
-    declare P_FLAG="/"
+    declare P_FLAG="."
     declare S_FLAGS=( $ARG_NAME )
     declare HAS_D_FLAG="false"
     declare -i D_FLAG="0"
+    declare HAS_F_FLAG="false"
 
     declare -i I=$NUM_ARGS
     I=I+1
@@ -64,6 +67,9 @@ main() {
 		HAS_D_FLAG="true"
 		D_FLAG=${!I}
 		D_FLAG=D_FLAG+1
+		;;
+	    "-f")
+		HAS_F_FLAG="true"
 		;;
 	    *)
 		notify "${!I} does not match any supported option"
@@ -90,7 +96,6 @@ main() {
 	S=S+1
     done
     
-    
     # Prints all the files to the user.
     declare FILES=()
     while IFS= read -r line; do
@@ -100,6 +105,11 @@ main() {
 
     # Asks user for which files to delete.
     declare TO_ALL=""
+
+    if [ "${HAS_F_FLAG}" == "true" ]; then
+	TO_ALL="y"
+    fi
+    
     declare -i I=0
     while [ $I -lt "${#FILES[@]}" ]; do
 	
