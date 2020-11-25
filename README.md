@@ -71,3 +71,10 @@ Removes the Byte-Order-Mark (BOM) from all files in a given path.
 Cleans up the docker environment locally.
 
 **$** rmdocker [option]
+
+#### [cmac](cmac)
+Searches a directory for files matching a given string and deletes them.
+
+**$** cmac <search> [options...]
+
+

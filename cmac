@@ -1,0 +1,120 @@
+#!/bin/bash
+
+readonly PROG_PATH=${0}
+readonly PROG_DIR=${0%/*}
+readonly PROG_NAME=$(basename $0)
+
+notify() {
+    echo "${PROG_NAME}: $1"
+    return 0
+}
+
+print_usage() {
+
+    echo "Usage: ${PROG_NAME} <search> [options...]"
+    echo
+    echo "Arguments:"
+    echo " <search>           The search string"
+    echo
+    echo "Options:"
+    echo " -p, <path>         The path to search from; defaults to '/'"
+
+    return 0
+}
+
+main() {
+
+    declare -ri NUM_ARGS=1
+
+    if [ "${1}" == "-h" ] || [ "${1}" == "--help" ]; then
+	print_usage
+	return 0
+    fi
+
+    if [ $# -lt ${NUM_ARGS} ]; then 
+	notify "try '${PROG_NAME} -h' or '${PROG_NAME} --help' for more information"
+	return 1
+    fi
+
+    declare ARG_NAME=$1
+
+    declare HAS_P_FLAG="false"
+    declare P_FLAG="/"
+
+    declare -i I=$NUM_ARGS
+    I=I+1
+    while [ $I -le $# ]; do
+	case ${!I} in
+	    "-p")
+		I=I+1
+		HAS_P_FLAG="true"
+		P_FLAG=${!I}
+		;;
+	    *)
+		notify "${!I} does not match any supported option"
+		;;
+	esac
+	I=I+1
+    done
+    
+    # Writes the content to the file.
+    declare TMP_FILE=".cmactmp"
+    find $P_FLAG -iname "*${ARG_NAME}*" -print0 2>/dev/null | while read -d $'\0' file
+    do
+	echo $file >> $TMP_FILE
+    done
+    
+    # Prints all the files to the user.
+    declare FILES=()
+    while IFS= read -r line; do
+	notify "found '$line'"
+	FILES+=( "'$line'" )
+    done < "$TMP_FILE"
+
+    # Asks user for which files to delete.
+    declare TO_ALL=""
+    declare -i I=0
+    while [ $I -lt "${#FILES[@]}" ]; do
+	
+	declare ANSWER=""
+	declare FILE=${FILES[$I]}
+	
+	if [ "$TO_ALL" == "y" ] || [ "$TO_ALL" == "n" ]; then
+	    ANSWER=$TO_ALL
+	else
+	    echo -n "${PROG_NAME}: remove $FILE (y/n or h for help)? "
+	    read input
+	    ANSWER=$input
+	fi
+	
+	case "$ANSWER" in
+	    "y")
+		echo $FILE | xargs rm -rf
+		notify "deleted $FILE"
+		;;
+	    "n")
+		notify "kept $FILE"
+		;;
+	    "y!")
+		TO_ALL="y"
+		I=I-1
+		;;
+	    "n!")
+		TO_ALL="n"
+		I=I-1
+		;;
+	    *)
+		notify "answer [y] Yes, [n] No, [y!] Yes to rest or [n!] No to rest"
+		I=I-1
+		;;
+	esac
+	I=I+1
+    done
+    
+    rm -rf $TMP_FILE
+
+    return 0
+}
+
+main "${@}"
+
