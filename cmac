@@ -95,6 +95,14 @@ main() {
 	done
 	S=S+1
     done
+
+    if [ ! -e $TMP_FILE ]; then
+	notify "no matched files"
+	return 0
+    fi
+    
+    
+    
     
     # Prints all the files to the user.
     declare FILES=()
