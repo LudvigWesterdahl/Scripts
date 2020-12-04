@@ -1,0 +1,117 @@
+#!/bin/bash
+
+readonly PROG_PATH=${0}
+readonly PROG_DIR=${0%/*}
+readonly PROG_NAME=$(basename $0)
+
+notify() {
+    echo "${PROG_NAME}: $1"
+    return 0
+}
+
+print_usage() {
+
+    echo "Usage: ${PROG_NAME} <path> [options...]"
+    echo
+    echo "Arguments:"
+    echo " <path>             The path to the files"
+    echo
+    echo "Options:"
+    echo " -a,                Prints all files with CRLF"
+    echo " [-e], <ext>        Limits to a specific file extension"
+
+    return 0
+}
+
+remove_crlf() {
+    if [ -f "$1" ]; then
+	if in_array "${1##*\.}" "${E_FLAGS[@]}" ; then
+	    notify "removing CRLF from $1"
+	    vim "$1" -c "set ff=unix" -c ":wq"
+	fi
+
+	if [ "${HAS_E_FLAG}" == "false" ]; then
+	    notify "removing CRLF from $1"
+	    vim "$1" -c "set ff=unix" -c ":wq"
+	fi
+    fi
+    return 0
+}
+
+in_array() {
+    local needle=$1
+    local hay=$2
+    shift
+    for hay; do
+        [[ $hay == $needle ]] && return 0
+    done
+    return 1
+}
+
+main() {
+    declare -ri NUM_ARGS=1
+
+    if [ "${1}" == "-h" ] || [ "${1}" == "--help" ]; then
+	print_usage
+	return 0
+    fi
+
+    if [ $# -lt ${NUM_ARGS} ]; then 
+	notify "try '${PROG_NAME} -h' or '${PROG_NAME} --help' for more information"
+	return 1
+    fi
+
+    declare ARG_PATH="${1}"
+    declare HAS_A_FLAG="false"
+    declare HAS_E_FLAG="false"
+    declare E_FLAGS=()
+
+    declare -i I=$NUM_ARGS
+    I=I+1
+    while [ $I -le $# ]; do
+	case ${!I} in
+	    "-a")
+		HAS_A_FLAG="true"
+		;;
+	    "-e")
+		I=I+1
+		HAS_E_FLAG="true"
+		E_FLAGS+=(${!I})
+		;;
+	    *)
+		notify "${!I} does not match any supported option"
+		;;
+	esac
+	I=I+1
+    done
+    #for index in ${!E_FLAGS[@]}; do
+	#echo $index/${#E_FLAGS[@]}"="${E_FLAGS[index]}
+    #done
+    if [ "${HAS_A_FLAG}" == "true" ]; then
+	OIFS="$IFS"
+	IFS=$'\n'
+	for i in $(grep -rlI $'\r' "${ARG_PATH}"); do
+	    if [ "${HAS_E_FLAG}" == "true" ]; then
+		if in_array "${i##*\.}" "${E_FLAGS[@]}" ; then
+		    notify "$i"
+		fi
+	    else
+		notify "$i"
+	    fi
+	done
+	IFS="$OIFS"
+	return 0
+    fi
+
+    OIFS="$IFS"
+    IFS=$'\n'
+    for i in $(grep -rlI $'\r' "${ARG_PATH}"); do
+	remove_crlf "$i"
+    done
+    IFS="$OIFS"
+    
+    return 0
+}
+
+main "${@}"
+

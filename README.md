@@ -77,4 +77,9 @@ Searches a directory for files matching a given string and deletes them.
 
 **$** cmac <search> [options...]
 
+#### [rmcrlf](rmcrlf)
+Replaces the CRLF with LF from all files in a given path.
+
+**$** rmcrlf <path> [options...]
+
 
