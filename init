@@ -10,20 +10,14 @@ main() {
     permit() {
 	declare ARG_FILE=$1
 	declare FULL_FILE="${PROG_DIR}/$ARG_FILE"
+	echo "permitting: $FULL_FILE"
 	${ARG_COMMAND} ${FULL_FILE}
 	return 0
     }
-
-    permit "cvenv"
-    permit "ren"
-    permit "rmc"
-    permit "sgi"
-    permit "bas"
-    permit "basr"
-    permit "basl"
-    permit "cag"
-    permit "mkjava"
-    permit "renamer.py"
+    FILES=$(ls $PROG_DIR)
+    for f in $FILES; do
+	permit $f
+    done
     
     return 0
 }
