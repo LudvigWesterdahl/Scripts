@@ -23,6 +23,7 @@ main() {
     permit "basl"
     permit "cag"
     permit "mkjava"
+    permit "renamer.py"
     
     return 0
 }

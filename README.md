@@ -32,8 +32,8 @@ Dumps a sqlite3 table on an android device using the adb.
 
 **$** bas &lt;path&gt; [options...]
 
-#### [ren](ren)
-Replaces a substring in all file names in a folder.
+#### [renamer.py](renamer.py)
+Replaces a substring in files, file names and/or folder names.
 
 **$** ren &lt;old&gt; &lt;new&gt; &lt;path&gt;
 
