@@ -6,8 +6,16 @@ import codecs
 import mimetypes
 import subprocess
 
+# Coloring the print statements
+# https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html
+
 PROG_NAME=os.path.basename(__file__)
 NO_ERR="2>/dev/null"
+
+BOLD="\u001b[1m"
+RED="\u001b[31m"
+GREEN="\u001b[32m"
+RESET="\u001b[0m"
 
 def notify(arg):
     print("{}: {}".format(PROG_NAME, str(arg)))
@@ -36,7 +44,7 @@ def to_dict(files, files_rows):
             else:
                 res[f] = []
 
-    for f, r in [(f.split(":")[0], f.split(":")[1]) for f in files_rows]:
+    for f, r in [(f.split(":")[0], "".join(f.split(":")[1:])) for f in files_rows]:
         res[f].append(r)
 
     return res
@@ -86,25 +94,34 @@ def is_binary(filename):
 
     return not res
 
+def color_substring(s, sub, color):
+    return str(s).replace(str(sub), str(color) + str(sub) + RESET)
+    
 def main(args):
-    cmd = ["find", args["path"], "-name", "*{}*".format(args["old"])]
+    old = args["old"]
+    old_c = color_substring(old, old, RED + BOLD)
+    new = args["new"]
+    new_c = color_substring(new, new, GREEN + BOLD)
+    path = args["path"]
+    
+    cmd = ["find", args["path"], "-name", "*{}*".format(old)]
     if not args["recursive"]:
         cmd.append("-maxdepth 1")
     files_name, _ = run(cmd)
     files_name = to_array(files_name)
     
-    cmd = ["grep", "-rlI", args["old"], args["path"]]
+    cmd = ["grep", "-rlI", old, path]
     if not args["recursive"]:
         cmd.append("--include-dir")
-        cmd.append(args["path"])
+        cmd.append(path)
 
     files_content, _ = run(cmd)
     files_content = to_array(files_content)
     
-    cmd = ["grep", "-rI", args["old"], args["path"]]
+    cmd = ["grep", "-rI", old, path]
     if not args["recursive"]:
         cmd.append("--include-dir")
-        cmd.append(args["path"])
+        cmd.append(path)
 
     files_content_rows, _ = run(cmd)
     files_content_rows = to_array(files_content_rows)
@@ -113,25 +130,25 @@ def main(args):
         files_content = to_dict(files_content, files_content_rows)
     else:
         files_content = to_dict(files_content, [])
-
+    
     yes_to_rest = False if args["all"] else args["force"]
     no_to_rest = False
     for f, c in files_content.items():
         if len(c) != 1 or f != c[0]:
-            notify("--- {} ---".format(f))
+            notify(color_substring(f, f, BOLD))
             for i, row in enumerate(c):
-                notify("occurance {}: {}".format(i + 1, row))
+                notify("occurance {}: {}".format(i + 1, row.replace(old, old_c)))
         if yes_to_rest:
-            run(["perl", "-pi", "-e", "s/{}/{}/g".format(args["old"], args["new"]), f])
+            run(["perl", "-pi", "-e", "s/{}/{}/g".format(old, new), f])
             notify("modified {}".format(f))
         elif args["all"]:
-            notify("would modify {}".format(f))
+            notify("would modify {}".format(color_substring(f, f, BOLD)))
         elif no_to_rest:
             notify("did not modify {}".format(f))
         else:
-            yes, to_rest = get_yes_no("modify {} to {} in {}".format(args["old"], args["new"], f))
+            yes, to_rest = get_yes_no("modify {} to {} in {}".format(old_c, new_c, color_substring(f, f, BOLD)))
             if yes or yes_to_rest:
-                run(["perl", "-pi", "-e", "s/{}/{}/g".format(args["old"], args["new"]), f])
+                run(["perl", "-pi", "-e", "s/{}/{}/g".format(old, new), f])
                 notify("modified {}".format(f))
             else:
                 notify("did not modify {}".format(f))
@@ -147,19 +164,21 @@ def main(args):
         for i in files:
             if args["old"] in i and (args["recursive"] or root == "."):
                 file_old = os.path.join(root, i)
-                file_new = os.path.join(root, i.replace(args["old"], args["new"]))
+                file_new = os.path.join(root, i.replace(old, new))
+                file_old_c = color_substring(file_old, file_old, RED + BOLD)
+                file_new_c = color_substring(file_new, file_new, GREEN + BOLD)
                 if yes_to_rest:
                     os.rename(file_old, file_new)
-                    notify("renamed file {} to {}".format(file_old, file_new))
+                    notify("renamed file {} to {}".format(file_old_c, file_new_c))
                 elif args["all"]:
-                    notify("would rename file {} to {}".format(file_old, file_new))
+                    notify("would rename file {} to {}".format(file_old_c, file_new_c))
                 elif no_to_rest:
                     notify("did not rename file: {} to {}".format(file_old, file_new))
                 else:
-                    yes, to_rest = get_yes_no("rename file: {} to {}".format(file_old, file_new))
+                    yes, to_rest = get_yes_no("rename file: {} to {}".format(file_old_c, file_new_c))
                     if yes or yes_to_rest:
                         os.rename(file_old, file_new)
-                        notify("renamed file: {} to {}".format(file_old, file_new))
+                        notify("renamed file: {} to {}".format(file_old_c, file_new_c))
                     else:
                         notify("did not rename file: {} to {}".format(file_old, file_new))
                         
@@ -175,18 +194,20 @@ def main(args):
             if args["old"] in i and (args["recursive"] or root == "."):
                 dir_old = os.path.join(root, i)
                 dir_new = os.path.join(root, i.replace(args["old"], args["new"]))
+                dir_old_c= color_substring(dir_old, dir_old, RED + BOLD)
+                dir_new_c = color_substring(dir_new, dir_new, GREEN + BOLD)
                 if yes_to_rest:
                     os.rename(dir_old, dir_new)
-                    notify("renamed dir: {} to {}".format(dir_old, dir_new))
+                    notify("renamed dir: {} to {}".format(dir_old_c, dir_new_c))
                 elif args["all"]:
-                    notify("would rename dir {} to {}".format(dir_old, dir_new))
+                    notify("would rename dir {} to {}".format(dir_old_c, dir_new_c))
                 elif no_to_rest:
                     notify("did not rename dir: {} to {}".format(dir_old, dir_new))
                 else:
-                    yes, to_rest = get_yes_no("rename dir: {} to {}".format(dir_old, dir_new))
+                    yes, to_rest = get_yes_no("rename dir: {} to {}".format(dir_old_c, dir_new_c))
                     if yes or yes_to_rest:
                         os.rename(dir_old, dir_new)
-                        notify("renamed dir: {} to {}".format(dir_old, dir_new))
+                        notify("renamed dir: {} to {}".format(dir_old_c, dir_new_c))
                     else:
                         notify("did not rename dir: {} to {}".format(dir_old, dir_new))
                         

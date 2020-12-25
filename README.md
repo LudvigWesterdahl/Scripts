@@ -35,7 +35,7 @@ Dumps a sqlite3 table on an android device using the adb.
 #### [renamer.py](renamer.py)
 Replaces a substring in files, file names and/or folder names.
 
-**$** ren &lt;old&gt; &lt;new&gt; &lt;path&gt;
+**$** renamer.py &lt;old&gt; &lt;new&gt;
 
 #### [basl](basl)
 A version of [bas](bas) but read-only by downloading and using db locally.
