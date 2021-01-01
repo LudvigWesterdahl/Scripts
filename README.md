@@ -82,4 +82,9 @@ Replaces the CRLF with LF from all files in a given path.
 
 **$** rmcrlf <path> [options...]
 
+#### [agi](agi)
+Adds some common ignores to the gitignore.
+
+**$** agi
+
 
