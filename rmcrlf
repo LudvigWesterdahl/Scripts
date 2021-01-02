@@ -27,12 +27,14 @@ remove_crlf() {
     if [ -f "$1" ]; then
 	if in_array "${1##*\.}" "${E_FLAGS[@]}" ; then
 	    notify "removing CRLF from $1"
-	    vim "$1" -c "set ff=unix" -c ":wq"
+	    #vim "$1" -c "set ff=unix" -c ":wq"
+	    perl -e "s/\r$//g" -pi "$1"
 	fi
 
 	if [ "${HAS_E_FLAG}" == "false" ]; then
 	    notify "removing CRLF from $1"
-	    vim "$1" -c "set ff=unix" -c ":wq"
+	    #vim "$1" -c "set ff=unix" -c ":wq"
+	    perl -e "s/\r$//g" -pi "$1"
 	fi
     fi
     return 0
