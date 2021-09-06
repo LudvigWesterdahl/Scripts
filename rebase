@@ -1,0 +1,75 @@
+#!/bin/bash
+
+readonly PROG_PATH=${0}
+readonly PROG_DIR=${0%/*}
+readonly PROG_NAME=$(basename $0)
+
+notify() {
+    echo "${PROG_NAME}: $1"
+    return 0
+}
+
+print_usage() {
+
+    echo "Usage: ${PROG_NAME} [options...]"
+    echo
+    echo "Options:"
+    echo " -b, <branch>       Specifies the branch to rebase to; defaults to master"
+
+    return 0
+}
+
+main() {
+
+    declare -ri NUM_ARGS=0
+
+    if [ "${1}" == "-h" ] || [ "${1}" == "--help" ]; then
+	print_usage
+	return 0
+    fi
+
+
+    declare HAS_B_FLAG="false"
+    declare B_FLAG="master"
+
+    declare -i I=$NUM_ARGS
+    I=I+1
+    while [ $I -le $# ]; do
+	case ${!I} in
+	    "-b")
+		I=I+1
+		HAS_B_FLAG="true"
+		B_FLAG=${!I}
+		;;
+	    *)
+		notify "${!I} does not match any supported option"
+		;;
+	esac
+	I=I+1
+    done
+    
+    #declare A="[[:alnum:]]"
+    #declare REGEX="${A}*[/]${A}*[-]${A}*"
+    #declare CURR=$(git branch | grep -E "^\*" | grep -o ${REGEX})
+    declare CURR=$(git branch --show-current 2>/dev/null)
+
+    if [ -z ${CURR} ]; then
+	return 1
+    fi
+    
+    git checkout ${B_FLAG}
+    if [ $? -ne 0 ]; then
+	return 1
+    fi
+    
+    git pull
+    git checkout ${CURR}
+    git rebase ${B_FLAG}
+    notify "done!"
+    
+
+    return 0
+}
+
+main "${@}"
+

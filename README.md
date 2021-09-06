@@ -87,4 +87,9 @@ Adds some common ignores to the gitignore.
 
 **$** agi
 
+#### [rebase](rebase)
+Rebases a branch to another branch but pulls your target branch as well.
+
+**$** rebase [options...]
+
 
