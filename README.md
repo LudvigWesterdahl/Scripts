@@ -93,7 +93,16 @@ Rebases a branch to another branch but pulls your target branch as well.
 **$** rebase [options...]
 
 #### [table.py](table.py)
-Creates a table for medium articles with width 68.
+Creates a table for medium articles with width 68. For example:
+<pre>
++---------------------+---------------------+----------------------+
+|         Type        |        Color        |        Weight        |
++---------------------+---------------------+----------------------+
+|        Apple        |         Red         |         250          |
+|        Orange       |        Orange       |         500          |
+|        Banana       |        Yellow       |         400          |
++---------------------+---------------------+----------------------+
+</pre>
 
 **$** table.py [options...]
 
