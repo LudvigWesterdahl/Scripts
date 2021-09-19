@@ -92,4 +92,9 @@ Rebases a branch to another branch but pulls your target branch as well.
 
 **$** rebase [options...]
 
+#### [table.py](table.py)
+Creates a table for medium articles with width 68.
+
+**$** table.py [options...]
+
 
