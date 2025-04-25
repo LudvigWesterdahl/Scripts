@@ -106,4 +106,10 @@ Creates a table for medium articles with width 68. For example:
 
 **$** table.py [options...]
 
+#### [pgit](pgit)
+Purges a file (like a credentials file) from a git repository
+
+**$** pgit <file> [options...]
+
+
 
