@@ -1,0 +1,79 @@
+#!/bin/bash
+
+readonly PROG_PATH=${0}
+readonly PROG_DIR=${0%/*}
+readonly PROG_NAME=$(basename $0)
+
+notify() {
+  echo "${PROG_NAME}: $1"
+  return 0
+}
+
+print_usage() {
+  echo "Copies a terminfo file to a ssh server"
+  echo
+  echo "Usage: ${PROG_NAME} <ssh> [options...]"
+  echo
+  echo "Arguments:"
+  echo " <ssh>              the ssh server"
+  echo
+  echo "Options:"
+  echo " -t, <t_arg>        the term info, defaults to xterm-ghostty"
+
+  return 0
+}
+
+main() {
+  declare -ri NUM_ARGS=1
+
+  if [ "${1}" == "-h" ] || [ "${1}" == "--help" ]; then
+    print_usage
+    return 0
+  fi
+
+  if [ $# -lt ${NUM_ARGS} ]; then
+    notify "try '${PROG_NAME} -h' or '${PROG_NAME} --help' for more information"
+    return 1
+  fi
+
+  declare SSH_ARG="${1}"
+
+  declare T_FLAG="xterm-ghostty"
+
+  declare -i I=$NUM_ARGS
+  I=I+1
+  while [ $I -le $# ]; do
+    case ${!I} in
+      "-t")
+        I=I+1
+        T_FLAG=${!I}
+      ;;
+      *)
+        notify "${!I} does not match any supported option"
+      ;;
+    esac
+    I=I+1
+  done
+
+  if ! command -v infocmp; then
+    notify "infocmp is not available!"
+    return 1
+  fi
+
+  if ! infocmp -x ${T_FLAG} 2>&1 1>/dev/null; then
+    notify "terminfo ${T_FLAG} was not found!"
+    return 1
+  fi
+
+  if infocmp -x ${T_FLAG} | ssh ${SSH_ARG} -- tic -x -; then
+    notify "successfully installed ${T_FLAG} on ${SSH_ARG}"
+    return 0
+  else
+    notify "faield to install ${T_FLAG} on ${SSH_ARG}"
+    return 1
+  fi
+
+  return 0
+}
+
+main "${@}"
