@@ -55,12 +55,12 @@ main() {
     I=I+1
   done
 
-  if ! command -v infocmp; then
+  if ! command -v infocmp 1>/dev/null 2>&1; then
     notify "infocmp is not available!"
     return 1
   fi
 
-  if ! infocmp -x ${T_FLAG} 2>&1 1>/dev/null; then
+  if ! infocmp -x ${T_FLAG} 1>/dev/null 2>&1; then
     notify "terminfo ${T_FLAG} was not found!"
     return 1
   fi
@@ -69,7 +69,7 @@ main() {
     notify "successfully installed ${T_FLAG} on ${SSH_ARG}"
     return 0
   else
-    notify "faield to install ${T_FLAG} on ${SSH_ARG}"
+    notify "failed to install ${T_FLAG} on ${SSH_ARG}"
     return 1
   fi
 
